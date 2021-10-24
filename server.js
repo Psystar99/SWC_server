@@ -1,13 +1,23 @@
 const express = require('express');
 const app = express();
 
+app.use(express.json()); // Update for Express 4.16+
+
 app.listen(8080,function(){
     console.log('listening on 8080')
 });
 
-app.get('/pet',function(요청,응답){
-    응답.send('펫용품');
+//1. 어떠한 사용자에 대한 POST : 타이머 스탑할 때마다 CREATE......URL: /stopTimer 
+
+app.post('/stopTimer', function(request, response){
+    console.log(request.body);      // your JSON
+    response.send(request.body);    // echo the result back
+  });
+
+//2. 어떠한 사용자에 대한 GET : 통계 페이지를 위한 READ....URL: /Statics/day?user_id=
+app.get('/',function(req,res){
+    res.sendFile(__dirname + '/index.html');
 });
-app.get('/',function(요청,응답){
-    응답.sendFile(__dirname + '/index.html');
-});
+
+//3. 어떠한 사용자에 대한 GET : 통계 페이지를 위한 READ
+//URL: /Statics/month?user_id=
