@@ -1,13 +1,20 @@
-// Update for Express 4.16+
-// Starting with release 4.16.0, a new express.json() middleware is available.
-var express = require('express');
-var app = express();
+const express = require('express')
+const https = require('https')
+const path = require('path')
+const fs = require('fs')
 
-app.use(express.json());
+const app = express()
 
-app.post('/', function(request, response){
-  console.log(request.body);      // your JSON
-   response.send(request.body);    // echo the result back
-});
+app.use('/',(req,res,next) => {
+  res.send('hi ssl...ㅇㅓ 왔니...?')
+})
 
-app.listen(3000);
+const sslServer=https.createServer(
+  {
+    key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem')),
+  },
+  app
+)
+
+sslServer.listen(3443,() => console.log('sibalsibal on port 3443'))
