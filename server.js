@@ -1,10 +1,12 @@
-var express = require('express');
-var app = express();
+const express = require('express')
+const https = require('https')
+const path = require('path')
+const fs = require('fs')
+
+const app = express()
+
 
 app.use(express.json()); // Update for Express 4.16+
-app.listen(8080,function(){
-    console.log('listening on 8080')
-});
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/testDB');
@@ -24,7 +26,7 @@ var Student = mongoose.model('Schema', student);
 
 //1. 어떠한 사용자에 대한 POST : 타이머 스탑할 때마다 CREATE......URL: /stopTimer 
 app.post('/stopTimer', function(request, response){
-    console.log(request.body);      // your JSON
+    console.log(request.body); // your JSON
     var newStudent = new Student(request.body);
     newStudent.save(function(error, data){
         if(error){
@@ -49,4 +51,14 @@ app.get('/statics',function(request, response){
 });
 
 //3. 어떠한 사용자에 대한 GET : 통계 페이지를 위한 READ
-//URL: /Statics/month?user_id=
+//URL: /Statics/month?user_id
+
+const sslServer=https.createServer(
+    {
+      key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
+      cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem')),
+    },
+    app
+  )
+  
+  sslServer.listen(2443,() => console.log('sibalsibal on port 2443'))
