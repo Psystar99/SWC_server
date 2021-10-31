@@ -55,8 +55,9 @@ app.get('/statics',function(request, response){
 
 const sslServer=https.createServer(
     {
-      key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
-      cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem')),
+        ca: fs.readFileSync('/etc/letsencrypt/live/bagi22.ml/fullchain.pem'),
+        key: fs.readFileSync('/etc/letsencrypt/live/bagi22.ml/privkey.pem'),
+        cert: fs.readFileSync('/etc/letsencrypt/live/bagi22.ml/cert.pem'),
     },
     app
   )
