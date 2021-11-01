@@ -25,7 +25,8 @@ var student = mongoose.Schema({
 var Student = mongoose.model('Schema', student);
 
 //1. 어떠한 사용자에 대한 POST : 타이머 스탑할 때마다 CREATE......URL: /stopTimer 
-app.post('/stopTimer', function(request, response){
+app.post('/stopTimer/:id', function(request, response){
+    var userid = request.params.id;
     console.log(request.body); // your JSON
     var newStudent = new Student(request.body);
     newStudent.save(function(error, data){
@@ -39,7 +40,8 @@ app.post('/stopTimer', function(request, response){
 });
 
 //2. 어떠한 사용자에 대한 GET : 통계 페이지를 위한 READ 그리고 클라언트에게 send 데이터....URL: /Statics/day?user_id=
-app.get('/statics',function(request, response){
+app.get('/statics/:id',function(request, response){
+    var userid = request.params.id;
     Student.find(function(error, students){
         console.log('--- Read all ---');
         if(error){
