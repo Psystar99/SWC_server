@@ -30,8 +30,10 @@ app.post('/stopTimer', function(request, response){
     var newStudent = new Student(request.body);
     newStudent.save(function(error, data){
         if(error){
+            response.send('서버로부터의 메세지: Error')
             console.log(error);
         }else{
+            response.send('서버로부터의 메세지: Data Saved!')
             console.log('Data Saved!')
         }
     });
