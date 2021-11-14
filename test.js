@@ -21,7 +21,7 @@ var focus = new mongoose.Schema({
     type : 'string', //졺, 초점x
     startTime : 'string', //1135
     endTime : 'string'
-})
+});
 
 var study = new mongoose.Schema({
     startTime : 'string',
@@ -30,15 +30,19 @@ var study = new mongoose.Schema({
 
 var dayStudys = new mongoose.Schema({
     day : 'string', //211114
-    time : 'number',
+    time : {type: 'number', default : 0},
     studys : [study],
     focusXs : [focus]//절대 시간 4자리 스트링인데 숫자. 1854
+},{
+    versionKey: false // You should be aware of the outcome after set to false
 });
 
-var student = mongoose.Schema({
-    studys : [study],
-    day : 'string'
-});
+function calTime(postJson){
+   var start = postJson.startTime;
+
+   return 0;
+
+}
 
 //1. 어떠한 사용자에 대한 POST : 타이머 스탑할 때마다 CREATE......URL: /stopTimer 
 app.post('/stopTimer/:uid', function(request, response){
@@ -46,7 +50,7 @@ app.post('/stopTimer/:uid', function(request, response){
     var uid = request.params.uid;
     console.log(request.body);
     console.log(uid + " 컬렉션에 연결하겠습니다.");
-    var Student = mongoose.model(uid, student);
+    var User = mongoose.model(uid, dayStudys);
     
     //b. 오늘 날짜 8자리로 변환하기
     const day = new Date();
@@ -59,10 +63,17 @@ app.post('/stopTimer/:uid', function(request, response){
 
     //c. 안드로이드에서 보낸 공부 구간(study) JSON을 오늘의 dayStudys의 studys에 추가
     //d. 누적 시간 update
-    var newStudy = request.body;
-    var updateParam = {studys: newStudy};
+    var newStudy = request.body.studys;
+    var newFocusX = request.body.focusXs;
 
-    Student.findOneAndUpdate(filterParam, {$push: updateParam}, {
+    //var newTime = calTime(newStudy))-calTime(newFocusX);
+
+    var updateParam = {
+        studys: newStudy,
+        focusXs: newFocusX
+    };
+
+    User.findOneAndUpdate(filterParam, {$push: updateParam}, {
         new: true,
         upsert: true // Make this update into an upsert
     }, function(err){
@@ -76,23 +87,23 @@ app.post('/stopTimer/:uid', function(request, response){
 });
 
 //2. 어떠한 사용자에 대한 GET : 통계 페이지를 위한 READ 그리고 클라언트에게 send 데이터....URL: /Statics/:uid/:day
-app.get('/test/:uid/:day',function(request, response){
+app.get('/statics/:uid/:day',function(request, response){
 
     //a. uid로 컬렉션과 연결
     var uid = request.params.uid;
     var day = request.params.day;
 
-    var Student = mongoose.model(uid, student);
+    var User = mongoose.model(uid, dayStudys);
     var queryParam = {};
     queryParam['day']=day;
     
-    Student.find(queryParam).exec(function(error, students){
+    User.find(queryParam).exec(function(error, result){
         console.log('--- Read all ---');
         if(error){
             console.log(error);
         }else{
-            console.log(students);
-            response.send(students);    // echo the result back
+            console.log(result);
+            response.send(result);    // echo the result back
         }
     })
 });
