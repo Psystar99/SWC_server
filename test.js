@@ -18,8 +18,8 @@ db.once('open', function() {
 });
 
 var focus = new mongoose.Schema({
-    type : 'string', //졺, 초점x
-    startTime : 'string', //113524
+    type : 'string', //ex. 졺, 초점x
+    startTime : 'string', // 시분초의 6자리 문자열
     endTime : 'string'
 });
 
@@ -29,7 +29,10 @@ var study = new mongoose.Schema({
 });
 
 var dayStudys = new mongoose.Schema({
-    day : 'string', // 20211114 : 8자리 표현
+    year :'string', // 4자리 ex) 2021년
+    month : 'string', //  1 - 12 월
+   // week : 'string', // 1자리 ex) 1주차
+    day : 'string', // 1 - 31
     time : {type: 'number', default : 0}, // 누적시간
     studys : [study], // 공부구간
     focusXs : [focus] // 집중X 구간
@@ -49,7 +52,7 @@ function calTime(times){
         var eM = parseInt(times[t].endTime.slice(2,4)); 
         var eS = parseInt(times[t].endTime.slice(4,6));
         
-        var sDate = new Date(2021,11,11,sH,sM,sS);
+        var sDate = new Date(2021,11,11,sH,sM,sS);// 년도, 월, 일은 상관 없기 때문에 더미 값을 넣기
         var eDate = new Date(2021,11,11,eH,eM,eS);  
 
         studySec += (eDate-sDate)/1000;
@@ -61,26 +64,23 @@ function calTime(times){
 app.post('/stopTimer/:uid', function(request, response){
     //a. uid로 컬렉션과 연결
     var uid = request.params.uid;
-    //console.log(request.body);
     console.log(uid + " 컬렉션에 연결하겠습니다.");
     var User = mongoose.model(uid, dayStudys);
-    
-    //b. 오늘 날짜 8자리로 변환하기
-    const day = new Date();
-    var today = day.getFullYear().toString()+(day.getMonth()+1).toString()+day.getDate().toString();
-    //console.log(today);
 
     // c. 오늘 날짜인 데이터 찾기- 있으면 배열 추가하기, 없으면 새로 만들기
+    const day = new Date();
     var filterParam = {};
-    filterParam['day']=today;
+    filterParam['year'] = day.getFullYear().toString();
+    filterParam['month'] = (day.getMonth()+1).toString();
+    //filterParam['week']= day.getTime();
+    filterParam['day']= day.getDate().toString();
+    console.log(filterParam);
 
     //c. 안드로이드에서 보낸 공부 구간(study) JSON을 오늘의 dayStudys의 studys에 추가
     //d. 누적 시간 update
     var newStudy = request.body.studys;
     var newFocusX = request.body.focusXs;
     var newTime = calTime(newStudy)-calTime(newFocusX);
-    console.log("왜 저ㅇ ㅏㄴㅚㅑㅠ"+newTime);
-    //기존 시간에 새시간 어케 더하뉴??
 
     var updateParam = {
         studys: newStudy,
@@ -105,15 +105,18 @@ app.post('/stopTimer/:uid', function(request, response){
 });
 
 //2. 어떠한 사용자에 대한 GET : 통계 페이지를 위한 READ 그리고 클라언트에게 send 데이터....URL: /Statics/:uid/:day
+// day 형식은 2021-9-8 과 같이 -로 구분하기
 app.get('/statics/:uid/:day',function(request, response){
 
     //a. uid로 컬렉션과 연결
     var uid = request.params.uid;
-    var day = request.params.day;
+    var day = request.params.day.split("-");
 
     var User = mongoose.model(uid, dayStudys);
     var queryParam = {};
-    queryParam['day']=day;
+    queryParam['year']=day[0];
+    queryParam['month']=day[1];
+    queryParam['day']=day[2];
     
     User.find(queryParam).exec(function(error, result){
         console.log('--- Read all ---');
@@ -121,7 +124,7 @@ app.get('/statics/:uid/:day',function(request, response){
             console.log(error);
         }else{
             console.log(result);
-            response.send(result);    // echo the result back
+            response.send(result);// echo the result back
         }
     })
 });
