@@ -72,9 +72,7 @@ app.post('/stopTimer/:uid', function(request, response){
     var filterParam = {};
     filterParam['year'] = day.getFullYear().toString();
     filterParam['month'] = (day.getMonth()+1).toString();
-    //filterParam['week']= day.getTime();
     filterParam['day']= day.getDate().toString();
-    console.log(filterParam);
 
     //c. 안드로이드에서 보낸 공부 구간(study) JSON을 오늘의 dayStudys의 studys에 추가
     //d. 누적 시간 update
@@ -125,6 +123,35 @@ app.get('/statics/:uid/:day',function(request, response){
         }else{
             console.log(result);
             response.send(result);// echo the result back
+        }
+    })
+});
+
+// 3. 깃과 같은 달력을 위해
+app.get('/calendar/:uid/:month', function(request, response){
+    var uid = request.params.uid;
+    var month = request.params.month;
+
+    var User = mongoose.model(uid, dayStudys);
+    var queryParam = {};
+    queryParam['month']=month;
+
+    var calTimes=new Array();
+
+    User.find(queryParam).exec(function(error, result){
+        console.log('--- calculate time of the month ---');
+        if(error){
+            console.log(error);
+        }else{
+            var calTime = new Object();
+            for(d in result){
+                console.log(result[d].day+" "+result[d].time);
+                calTime.day = result[d].day;
+                calTime.time = result[d].time;
+                calTimes.push(calTime);
+            }
+            console.log(calTime);
+            response.send(calTimes);// echo the result back
         }
     })
 });
