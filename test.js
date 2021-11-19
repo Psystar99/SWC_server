@@ -31,9 +31,8 @@ var study = new mongoose.Schema({
 var dayStudys = new mongoose.Schema({
     year :'string', // 4자리 ex) 2021년
     month : 'string', //  1 - 12 월
-   // week : 'string', // 1자리 ex) 1주차
     day : 'string', // 1 - 31
-    time : {type: 'number', default : 0}, // 누적시간
+    time : {type: 'number', default : 0}, // 누적시간 - 초단위로 저장
     studys : [study], // 공부구간
     focusXs : [focus] // 집중X 구간
 },{
@@ -135,22 +134,20 @@ app.get('/calendar/:uid/:month', function(request, response){
     var User = mongoose.model(uid, dayStudys);
     var queryParam = {};
     queryParam['month']=month;
-
-    var calTimes=new Array();
-
+    
     User.find(queryParam).exec(function(error, result){
         console.log('--- calculate time of the month ---');
         if(error){
             console.log(error);
         }else{
-            var calTime = new Object();
+            var calTimes=new Array();
             for(d in result){
-                console.log(result[d].day+" "+result[d].time);
+                var calTime = new Object();
                 calTime.day = result[d].day;
                 calTime.time = result[d].time;
-                calTimes.push(calTime);
+                calTime = JSON.stringify(calTime);
+                calTimes.push(JSON.parse(calTime));
             }
-            console.log(calTime);
             response.send(calTimes);// echo the result back
         }
     })
