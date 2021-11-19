@@ -144,7 +144,29 @@ app.get('/calendar/:uid/:month', function(request, response){
             for(d in result){
                 var calTime = new Object();
                 calTime.day = result[d].day;
-                calTime.time = result[d].time;
+                var time = result[d].time/60/60;
+
+                // [0,3) : 1단계, [3,6) : 2단계, [6,9) : 3단계, [9,12) : 4단계, 12 이상 : 5단계,
+                if(time>=0 && time<3){
+                    time = 1;
+                }
+                else if(time>=3 && time<6){
+                    time = 2;
+                }
+                else if(time>=3 && time<6){
+                    time = 3;
+                }
+                else if(time>=3 && time<6){
+                    time = 4;
+                }
+                else if(time>=3 && time<6){
+                    time = 5;
+                }
+                else{
+                    console.log("time should not be minus");
+                }
+                console.log(time);
+                calTime.level = time; 
                 calTime = JSON.stringify(calTime);
                 calTimes.push(JSON.parse(calTime));
             }
