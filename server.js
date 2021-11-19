@@ -1,5 +1,5 @@
 const express = require('express')
-const http = require('http')
+const https = require('https')
 const path = require('path')
 const fs = require('fs')
 
@@ -175,7 +175,6 @@ app.get('/calendar/:uid/:month', function(request, response){
     })
 });
 
-
 const sslServer=https.createServer(
     {
         ca: fs.readFileSync('/etc/letsencrypt/live/bagi22.ml/fullchain.pem'),
@@ -185,4 +184,4 @@ const sslServer=https.createServer(
     app
   )
   
-  sslServer.listen(2443,() => console.log('SWC server on port 2443'))
+  sslServer.listen(2443,() => console.log('sibalsibal on port 2443'))
