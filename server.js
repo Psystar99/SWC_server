@@ -111,9 +111,9 @@ app.get('/statics/:uid/:day',function(request, response){
 
     var User = mongoose.model(uid, dayStudys);
     var queryParam = {};
-    queryParam['year']=day[0];
-    queryParam['month']=day[1];
-    queryParam['day']=day[2];
+    queryParam['year']=parseInt(day[0]);
+    queryParam['month']=parseInt(day[1]);
+    queryParam['day']=parseInt(day[2]);
     
     User.find(queryParam).exec(function(error, result){
         console.log('--- Read all ---');
@@ -156,10 +156,10 @@ app.get('/calendar/:uid/:month', function(request, response){
                 else if(time>=3 && time<6){
                     time = 3;
                 }
-                else if(time>=3 && time<6){
+                else if(time>=6 && time<9){
                     time = 4;
                 }
-                else if(time>=3 && time<6){
+                else if(time>=9){
                     time = 5;
                 }
                 else{
