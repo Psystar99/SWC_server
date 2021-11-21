@@ -153,13 +153,13 @@ app.get('/calendar/:uid/:month', function(request, response){
                 else if(time>=3 && time<6){
                     time = 2;
                 }
-                else if(time>=3 && time<6){
+                else if(time>=6 && time<9){
                     time = 3;
                 }
-                else if(time>=6 && time<9){
+                else if(time>=9 && time<12){
                     time = 4;
                 }
-                else if(time>=9){
+                else if(time>=12){
                     time = 5;
                 }
                 else{
@@ -185,3 +185,7 @@ const sslServer=https.createServer(
   )
   
   sslServer.listen(2443,() => console.log('sibalsibal on port 2443'))
+
+
+
+
