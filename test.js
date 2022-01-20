@@ -7,7 +7,7 @@ const app = express()
 app.use(express.json()); // Update for Express 4.16+
 var mongoose = require('mongoose');
 const { stringify } = require('querystring')
-mongoose.connect('mongodb://localhost:27017/testDB');
+mongoose.connect('mongodb://mongodb:27017/testDB');
 var db = mongoose.connection;
 
 db.on('error', function(){
@@ -38,6 +38,20 @@ var dayStudys = new mongoose.Schema({
 },{
     versionKey: false // You should be aware of the outcome after set to false
 });
+
+app.get('/a_route_behind_paywall',
+  function checkIfPaidSubscriber(req, res, next) {
+    if(!req.user.hasPaid) {
+
+      // continue handling this request
+      next('route');
+    }
+  }, function getPaidContent(req, res, next) {
+    PaidContent.find(function(err, doc) {
+      if(err) return next(err);
+      res.json(doc);
+    });
+  });
 
 //studys 혹은 focusXs와 같은 JsonArray를 받아 누적 시간을 계산하는 함수
 //시간은 시분초의 6자리 string
