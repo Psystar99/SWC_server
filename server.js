@@ -7,7 +7,7 @@ const app = express()
 app.use(express.json()); // Update for Express 4.16+
 var mongoose = require('mongoose');
 const { stringify } = require('querystring')
-mongoose.connect('mongodb://localhost:27017/testDB');
+mongoose.connect('mongodb://localhost:27017/swcDB');
 var db = mongoose.connection;
 
 db.on('error', function(){
@@ -17,7 +17,7 @@ db.once('open', function() {
     console.log('Connected!');
 });
 
-var focus = new mongoose.Schema({
+var disturb = new mongoose.Schema({
     type : 'string', //ex. 졺, 초점x
     startTime : 'string', // 시분초의 6자리 문자열
     endTime : 'string'
@@ -34,12 +34,12 @@ var dayStudys = new mongoose.Schema({
     day : 'string', // 1 - 31
     time : {type: 'number', default : 0}, // 누적시간 - 초단위로 저장
     studys : [study], // 공부구간
-    focusXs : [focus] // 집중X 구간
+    disturbs : [disturb] // 집중X 구간
 },{
     versionKey: false // You should be aware of the outcome after set to false
 });
 
-//studys 혹은 focusXs와 같은 JsonArray를 받아 누적 시간을 계산하는 함수
+//studys 혹은 disturbs와 같은 JsonArray를 받아 누적 시간을 계산하는 함수
 //시간은 시분초의 6자리 string
 function calTime(times){
     var studySec = 0;
@@ -76,12 +76,12 @@ app.post('/stopTimer/:uid', function(request, response){
     //c. 안드로이드에서 보낸 공부 구간(study) JSON을 오늘의 dayStudys의 studys에 추가
     //d. 누적 시간 update
     var newStudy = request.body.studys;
-    var newFocusX = request.body.focusXs;
-    var newTime = calTime(newStudy)-calTime(newFocusX);
+    var newDisturbX = request.body.disturbs;
+    var newTime = calTime(newStudy)-calTime(newDisturbX);
 
     var updateParam = {
         studys: newStudy,
-        focusXs: newFocusX,
+        disturbs: newDisturbX,
     };
     var addParam = {time : newTime};
 
@@ -175,6 +175,24 @@ app.get('/calendar/:uid/:month', function(request, response){
     })
 });
 
+// 4. 사용자의 전체 기간 데이터 필요시 - 안드로이드 룸DB로 2, 3 함수 필요 없어짐
+app.get('/alldata/:uid',function(request, response){
+
+    var uid = request.params.uid;
+
+    var User = mongoose.model(uid, dayStudys);
+    
+    User.find(function(error, result){
+        console.log('--- Read all day ---');
+        if(error){
+            console.log(error);
+        }else{
+            console.log(result);
+            response.send(result);// echo the result back
+        }
+    })
+});
+
 const sslServer=https.createServer(
     {
         ca: fs.readFileSync('/etc/letsencrypt/live/bagi22.ml/fullchain.pem'),
@@ -185,7 +203,5 @@ const sslServer=https.createServer(
   )
   
   sslServer.listen(2443,() => console.log('sibalsibal on port 2443'))
-
-
 
 
