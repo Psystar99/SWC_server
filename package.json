@@ -2,9 +2,10 @@
   "name": "1023_swc",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "test_docker.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node test_docker.js",
+    "dev": "nodemon test_docker.js"
   },
   "author": "",
   "license": "ISC",
