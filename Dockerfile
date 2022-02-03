@@ -1,13 +1,12 @@
-FROM node:8
-# Create app directory
-WORKDIR /usr/src/app
-# Install app dependencies
-COPY package*.json ./
+FROM node
+ENV NODE_ENV=production
 
-RUN npm install
-# Copy app source code
+WORKDIR /app
+
+COPY ["package.json", "package-lock.json*", "./"]
+
+RUN npm install --production
+
 COPY . .
 
-#Expose port and start application
-EXPOSE 8081
-CMD [ "npm", "start" ]
+CMD [ "node", "test_docker.js" ]

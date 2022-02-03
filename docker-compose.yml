@@ -1,6 +1,7 @@
-version: "2"
+version: "3"
 services:
-  web:
+  api-server:
+    image: api-server
     build: .
     ports:
       - "8080:8080"
@@ -9,4 +10,4 @@ services:
   mongo:
     image: mongo
     ports:
-      - "27016:27017"
+      - "27017:27017"
